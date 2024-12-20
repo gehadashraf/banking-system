@@ -15,18 +15,26 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import observer.TransferLogger;
+import observer.TransferNotifier;
+import observer.TransferSubject;
 
 /**
  *
  * @author parth
  */
 public class transfer extends javax.swing.JInternalFrame {
+    
+    private final TransferSubject transferSubject = new TransferSubject();
 
     /**
      * Creates new form account
      */
     public transfer() {
         initComponents();
+        
+        transferSubject.addObserver(new TransferLogger());
+        transferSubject.addObserver(new TransferNotifier());
         
     
     }
@@ -186,7 +194,7 @@ Connection con1;
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankproject","root","12345");
+            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankproject","root","2100401");
             insert = con1.prepareStatement("select balance from customer,account where customer.cust_id = account.cust_id and account.acc_id = ?");
             insert.setString(1, accno);
             rs1 = insert.executeQuery();
@@ -227,7 +235,7 @@ Connection con1;
             int amount =Integer.parseInt( txtamount.getText( ));
 
             Class.forName("com.mysql.jdbc.Driver");
-            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankproject","root","12345");
+            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankproject","root","2100401");
             con1.setAutoCommit(false);
             PreparedStatement st1=con1.prepareStatement("update account set balance=balance-? where acc_id=?");
 	    st1.setInt(1,amount);
@@ -252,6 +260,8 @@ Connection con1;
             txtbal.setText("");
                   
             con1.commit();
+            
+             transferSubject.notifyObservers(faccno, taccno, amount);
 
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(customer.class.getName()).log(Level.SEVERE, null, ex);

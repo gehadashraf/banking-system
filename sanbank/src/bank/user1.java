@@ -16,19 +16,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import decorator.UserOperations;
 
 /**
  *
  * @author parth
  */
-public class user1 extends javax.swing.JInternalFrame {
+public class user1 extends javax.swing.JInternalFrame implements UserOperations{
 
     /**
      * Creates new form user1
      */
-    
-    private SessionManager sessionManager = SessionManager.getInstance();
-    
+       
     public user1() {
         initComponents();
         table_update();
@@ -209,6 +208,40 @@ public class user1 extends javax.swing.JInternalFrame {
         }
     }
     
+     @Override
+    public void addUser(String name, String user, String password) {
+        try {
+            // Existing addUser logic...
+            Class.forName("com.mysql.jdbc.Driver");
+            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankproject","root","12345");
+            insert = con1.prepareStatement("insert into user (name, username, password) values(?, ?, ?)");
+            insert.setString(1, name);
+            insert.setString(2, user);
+            insert.setString(3, password);
+            insert.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Successfully Saved");
+            table_update();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    
+    @Override
+    public void deleteUser(int id) {
+        try {
+            // Existing deleteUser logic...
+            Class.forName("com.mysql.jdbc.Driver");
+            con1 = DriverManager.getConnection("jdbc:mysql://localhost:3306/bankproject","root","12345");
+            insert = con1.prepareStatement("delete from user where id = ?");
+            insert.setInt(1, id);
+            insert.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Record Deleted");
+            table_update();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
     
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
